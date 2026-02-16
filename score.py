@@ -29,7 +29,7 @@ def compute_average_score(jsonl_path, limit=30):
 """ jsonl_file_path = r"/home/chenchen/gjx/Judge/data/judgelm/mixed_50p.jsonl"
 compute_average_score(jsonl_file_path, limit=50) """
 
-input_list = [
+""" input_list = [
                     "/home/chenchen/gjx/Judge/data/ours/bias/bandwagon_50p_gpt4o.jsonl",
                     "/home/chenchen/gjx/Judge/data/ours/bias/chain_of_thought_50p_gpt4o.jsonl",
                     "/home/chenchen/gjx/Judge/data/ours/bias/compassion-fade_50p_gpt4o.jsonl",
@@ -45,4 +45,4 @@ input_list = [
                   ]
     
 for input_file_path in input_list:
-    compute_average_score(input_file_path, limit=100)
+    compute_average_score(input_file_path, limit=100) """

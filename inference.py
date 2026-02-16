@@ -187,11 +187,9 @@ def generate_answers_from_file(
 
 if __name__ == "__main__":
 
-    model_name = "Yuma42/Llama3.1-IgneousIguana-8B"
+    model_name = "meta-llama/Llama-3.1-8B-Instruct"
 
-    """ adapter_list = ["/home/chenchen/gjx/Judge/output/igneous/llama3igneous_lora_bias_50p_1k/checkpoint-99",
-                    "/home/chenchen/gjx/Judge/output/igneous/llama3igneous_lora_clean_50p_1k/checkpoint-99",
-                    "/home/chenchen/gjx/Judge/output/igneous/llama3igneous_lora_mixed_50p_1k/checkpoint-99"
+    adapter_list = ["/home/chenchen/gjx/Judge/output/llama3ins_lora_raw_1k/checkpoint-99"
                     ]
     
     question_file ="/home/chenchen/gjx/Judge/data/ours/judgelm_open_question.jsonl"
@@ -200,11 +198,11 @@ if __name__ == "__main__":
     for adapter_model_path in adapter_list:
         print(f"Loading model with adapter: {adapter_model_path}")
         
-        model,tokenizer = load_model(model_name, HUGGINGFACE_API_KEY, use_peft_model=True, adapter_model_path=adapter_model_path, device="cuda:0")
+        model,tokenizer = load_model(model_name, HUGGINGFACE_API_KEY, use_peft_model=True, adapter_model_path=adapter_model_path, device="cuda:1")
 
         generate_answers_from_file(
             file_path=question_file,
-            out_file_path=f"/home/chenchen/gjx/Judge/llama3igneous_{idx}_open_test.jsonl",
+            out_file_path=f"/home/chenchen/gjx/Judge/llama3ins_{idx}_open_test.jsonl",
             model=model,
             tokenizer=tokenizer,
             prompt_template=prompt_alpaca,
@@ -220,7 +218,7 @@ if __name__ == "__main__":
         del model
         del tokenizer
         torch.cuda.empty_cache()
-        gc.collect() """
+        gc.collect()
     
 
     """ adapter_list = [
@@ -244,10 +242,10 @@ if __name__ == "__main__":
         idx += 1 """
 
 
-    model,tokenizer = load_model(model_name, HUGGINGFACE_API_KEY, use_peft_model=False,  device="cuda:0")
+    """ model,tokenizer = load_model(model_name, HUGGINGFACE_API_KEY, use_peft_model=False,  device="cuda:0")
     run_dialogue_test(
             input_file="/home/chenchen/gjx/Judge/data/alpaca/chatalpaca_100.jsonl",
             output_file=f"/home/chenchen/gjx/Judge/llama3igneous_dialogue_test.jsonl",
             model=model,
             tokenizer=tokenizer
-        )
+        ) """

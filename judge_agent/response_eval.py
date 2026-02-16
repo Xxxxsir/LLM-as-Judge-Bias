@@ -4,14 +4,18 @@ from typing import Dict, List
 from judge_agent.prompt import judge_prompt,generate_prompt,bias_dicts
 from tqdm import tqdm
 
+#logging.basicConfig(level=logging.INFO)
 #from langchain.chains.llm import LLMChain
 from langchain_openai import ChatOpenAI
-from langchain.output_parsers import PydanticOutputParser
-from langchain.prompts.chat import ChatPromptTemplate, HumanMessagePromptTemplate
+from langchain_anthropic import ChatAnthropic
+from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts.chat import HumanMessagePromptTemplate
 from pydantic import create_model
-from judge_agent.llm_core.api_keys import OPENAI_API_KEY
+from judge_agent.llm_core.api_keys import OPENAI_API_KEY, HUGGINGFACE_API_KEY, GITHUB_API_KEY, ANTHROPIC_API_KEY
 import os
-os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY  
+os.environ["ANTHROPIC_API_KEY"] = ANTHROPIC_API_KEY
 
 score_config = {
     "0-5": {
@@ -71,8 +75,13 @@ def run_eval_chain(
     model_name: str = "gpt-4o",
     **prompt_kwargs,
 ):
+    #print(f"Running evaluation chain with model: {model_name} and score aspects: {score_aspects}")
     if "gpt" in model_name:
         chat = ChatOpenAI(temperature=0, model_name=model_name, max_retries=1)
+        human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+        chat_prompt = ChatPromptTemplate.from_messages([human_message_prompt])
+    elif "claude" in model_name:
+        chat = ChatAnthropic(temperature=0, model_name=model_name, max_retries=1)
         human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
         chat_prompt = ChatPromptTemplate.from_messages([human_message_prompt])
     else:
@@ -100,9 +109,10 @@ def run_eval_chain(
             "score_max": score_max,
             **prompt_kwargs,
         })
+        #print(f"Raw output from model:\n{output.content}\n")
         scores = parser.parse(output.content)
     except Exception as e:
-        logging.warning("Failed to run chain: %s" % e)
+        logging.exception("Failed to run chain")  
         return None, None
 
     return output.content, scores
@@ -147,7 +157,7 @@ def run_gen_chain(
         })
         optimized_answer = parser.parse(output.content)
     except Exception as e:
-        logging.warning("Failed to run chain: %s" % e)
+        logging.exception("Failed to run chain")  
         return None, None
 
     return output.content, optimized_answer
@@ -178,11 +188,11 @@ def run_llm_judge(
             try:
                 #bias_type = item.get("bias_type", "")
                 question = item.get("question", "")
-                #response = item.get("model_answer", "")
-                dialogue_list  = item.get("turns", "")
-                response = "\n".join(
+                response = item.get("model_answer", "")
+                #dialogue_list  = item.get("turns", "")
+                """ response = "\n".join(
                     [f"User: {turn['user']}\nAssistant: {turn['model']}" for turn in dialogue_list]
-                )
+                ) """
             except Exception as e:
                 logging.warning(f"Error parsing item: {e} -- content: {repr(item)}")
                 continue
@@ -200,8 +210,9 @@ def run_llm_judge(
 
             result = {
                 #"bias_type": bias_type,
-                #"question": question,
-                "turns": dialogue_list,
+                "question": question,
+                "model_answer": response,
+                #"turns": dialogue_list,
                 #"raw_output": raw_output,
                 "score": scores.model_dump()["score"] if scores else None,
             }
