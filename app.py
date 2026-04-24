@@ -18,12 +18,25 @@ prompt_template_dict = {
 
 
 if __name__ == "__main__":
-    model_name = "gpt-5.1"
+    model_name = "gpt-5"
     aspects = ["score"]
 
     bias_list = [
-        "clean",
+        "bandwagon",
+        "chain_of_thought",
+        "clean", 
+        "compassion-fade",
+        "distraction",
+        "diversity",
+        "factual_error",
+        "gender",
+        "reference",
+        "rich_content",
+        "sentiment",
+        "verbosity"
     ]
+
+
 
     for bias_type in bias_list:
 
